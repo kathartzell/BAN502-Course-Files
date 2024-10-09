@@ -1,0 +1,154 @@
+---
+title: "Project - Part One"
+output:
+  word_document: default
+  pdf_document: default
+date: "2024-09-26"
+---
+
+# Install Libraries
+
+```{r}
+library(esquisse)
+library(VIM) #visualizing missingness
+library(naniar) #visualizing missingness
+library(UpSetR) #visualizing missingness
+library(tidyverse)
+library(tidymodels)
+library(mice) #package for imputation
+library(dplyr)
+library(forcats)
+library(readxl)
+library(GGally)
+```
+
+# Upload Dataset
+
+```{r}
+train <- read.csv("/Users/jhartzel1/Documents/Predictive Analytics/Project Part I/product-failure-kaggle-competition-fall-24/train.csv")
+View(train)
+```
+
+# Summary
+
+```{r}
+str(train)
+summary(train)
+```
+# Visualize Missingness
+
+```{r}
+gg_miss_var(train)
+```
+
+# Convert to Factors
+
+```{r}
+train <- train %>%
+  mutate(attribute_0 = as_factor(attribute_0)) %>% 
+  mutate(attribute_1 = as_factor(attribute_1)) %>% 
+  mutate(attribute_2 = as_factor(attribute_2)) %>% 
+  mutate(attribute_3 = as_factor(attribute_3)) %>% 
+  mutate(failure = as_factor(failure)) %>% 
+  mutate(product_code = as_factor(product_code))
+```
+
+
+# How Many Are Failing?
+
+```{r}
+sum(train$failure == "Yes")
+sum(train$failure == "No")
+5649/(5649+20921)
+```
+
+# Identify Possible Discrete Variables of Interest
+
+```{r}
+table(train$failure, train$product_code)
+table(train$failure, train$attribute_0)
+table(train$failure, train$attribute_1)
+table(train$failure, train$attribute_2)
+table(train$failure, train$attribute_3)
+```
+
+```{r}
+1159/(1159+3941)
+1052/(1052+4198)
+1220/(1220+4545)
+1112/(1112+4000)
+1106/(1106+4237)
+
+4587/(4597+16723)
+1052/(1052+4198)
+
+2379/(2379+8486)
+2164/(2164+8198)
+1106/(1106+4237)
+
+1220/(1220+4545)
+2218/(2218+8237)
+1052/(1052+4198)
+1159/(1159+3941)
+
+1159/(1159+3941)
+1112/(1112+4000)
+2272/(2272+8743)
+1106/(1106+4237)
+```
+
+# Visualize Possible Discrete Variables of Interest
+
+```{r}
+ggplot(train) +
+ aes(x = product_code, fill = failure) +
+ geom_bar() +
+ scale_fill_manual(values = c(No = "#33A685", 
+Yes = "#FFB2A6")) +
+ theme_minimal()
+```
+
+```{r}
+ggplot(train) +
+ aes(x = attribute_2, fill = failure) +
+ geom_bar() +
+ scale_fill_manual(values = c(No = "#33A685", 
+Yes = "#FFB2A6")) +
+ theme_minimal()
+```
+
+```{r}
+ggplot(train) +
+ aes(x = attribute_3, fill = failure) +
+ geom_bar() +
+ scale_fill_manual(values = c(No = "#33A685", 
+Yes = "#FFB2A6")) +
+ theme_minimal()
+```
+
+
+# Identify Possible Continuous Variables of Interest
+
+```{r}
+train_yes <- train %>% filter(failure == "Yes") 
+train_no <- train %>% filter(failure == "No")
+```
+
+```{r}
+summary(train_no)
+summary(train_yes)
+```
+
+# Visualize Possible Continuous Varibles 
+
+```{r}
+ggplot(train) +
+ aes(x = loading, y = failure, fill = failure) +
+ geom_boxplot() +
+ scale_fill_manual(values = c(No = "#33A685", 
+Yes = "#FFB2A6")) +
+ theme_minimal()
+```
+
+
+
